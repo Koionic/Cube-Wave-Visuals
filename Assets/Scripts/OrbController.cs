@@ -75,41 +75,7 @@ public class OrbController : MonoBehaviour
     public Vector3 autoPilotPivotChange;
     
     #endregion
-
-    #region SDF
     
-    [Header("Signed Distance Fields")]
-
-    public int sdfIndex;
-
-    public Texture3D defaultSDF;
-    
-    public List<Texture3D> signedDistanceFields;
-
-    #endregion
-    
-    #region LiveSDF
-    
-    [Header("Live SDF")]
-
-    
-    public bool liveSDF = false;
-
-    private MeshToSDFBaker sdfBaker;
-    
-    public List<MeshFilter> liveSDFFilters = new List<MeshFilter>();
-
-    public Mesh liveSDFMesh;
-    
-    public Mesh bakedSDFMesh;
-    
-    public int maxResolution = 64;
-    public Vector3 center;
-    public Vector3 sizeBox;
-    public int signPassCount = 1;
-    public float threshold = 0.5f;
-    
-    #endregion
 
     // Start is called before the first frame update
     void Start()
@@ -123,16 +89,6 @@ public class OrbController : MonoBehaviour
         //     _kinectManager.OnUserRemoved.AddListener(OnKinectUserRemove);
         // }
         
-        if (!defaultSDF)
-        {
-            defaultSDF = signedDistanceFields[sdfIndex];
-        }
-        
-        if (liveSDF)
-        {
-            SetUpLiveBake();
-            BakeLiveMesh();
-        }
 
         //sphereDiameterID = Shader.PropertyToID("SphereSize");
         //orbColourID = Shader.PropertyToID("OrbColour");
@@ -150,16 +106,6 @@ public class OrbController : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
-        {
-            PrevSDF();
-        }
-            
-        if (Input.GetKeyDown(KeyCode.RightArrow))
-        {
-            NextSDF();
-        }
-
         // if (orbVFX)
         // {
         //     if (colourLerping)
@@ -208,18 +154,7 @@ public class OrbController : MonoBehaviour
         // }
         //
         // transform.rotation = objRotation;
-
-        if (orbVFX)
-        {
-            //orbVFX.SetFloat(sphereDiameterID, sphereDiameter);
-            
-            if (liveSDF)
-            {
-                BakeLiveMesh();
-            }
-            //orbVFX.transform.rotation = objRotation;
-            //cube.transform.position = handMidpoint;
-        }
+        
     }
 
     public void StartLerpingNextColour()
@@ -242,8 +177,6 @@ public class OrbController : MonoBehaviour
     void StartAutoPilot()
     {
         autoPilotOn = true;
-        
-        ResetSDFToDefault();
     }
 
     void StopAutoPilot()
@@ -300,90 +233,4 @@ public class OrbController : MonoBehaviour
             }
         }
     }
-
-    #region Live SDF Baking
-
-    public void FeedMeshFilters(List<MeshFilter> filters)
-    {
-        liveSDFFilters.Clear();
-
-        liveSDFFilters = filters;
-    }
-    
-    void SetUpLiveBake()
-    {
-        bakedSDFMesh = new Mesh();
-        sdfBaker = new MeshToSDFBaker(sizeBox, center, maxResolution, bakedSDFMesh, signPassCount, threshold);
-        //orbVFX.SetBool("LiveSDFBake", true);
-    }
-
-    public void BakeLiveMesh()
-    {
-        if (liveSDFFilters.Count > 0)
-        {
-
-            CombineInstance[] combine = new CombineInstance[liveSDFFilters.Count];
-
-            for (int i = 0; i < liveSDFFilters.Count; i++)
-            {
-                combine[i].mesh = liveSDFFilters[i].sharedMesh;
-                combine[i].transform = liveSDFFilters[i].transform.localToWorldMatrix;
-            }
-
-            bakedSDFMesh.CombineMeshes(combine);
-            sdfBaker.BakeSDF();
-            SetNewSDF(sdfBaker.SdfTexture);
-        }
-    }
-
-    #endregion
-    
-    #region Signed Distance Field Handling
-    
-    public void NextSDF()
-    {
-        sdfIndex++;
-        if (sdfIndex > signedDistanceFields.Count - 1)
-        {
-            sdfIndex = 0;
-        }
-        
-        SetNewSDF(signedDistanceFields[sdfIndex]);
-    }
-    
-    public void PrevSDF()
-    {
-        sdfIndex--;
-        if (sdfIndex < 0)
-        {
-            sdfIndex = signedDistanceFields.Count - 1;
-        }
-        
-        SetNewSDF(signedDistanceFields[sdfIndex]);
-    }
-
-    public void ResetSDFToDefault()
-    {
-        SetNewSDF(defaultSDF ? defaultSDF : signedDistanceFields[0]);
-    }
-    
-    
-    public void SetNewSDF(RenderTexture newRenderTex)
-    {
-        if (orbVFX)
-        {
-            orbVFX.SetTexture("ConformSDF", newRenderTex);
-        }
-    }
-    
-    public void SetNewSDF(Texture3D newTex3D)
-    {
-        if (orbVFX)
-        {
-            orbVFX.SetTexture("ConformSDF", newTex3D);
-        }
-    }
-
-    #endregion
-
 }

@@ -60,16 +60,6 @@ public class CubeWave : MonoBehaviour
                 cubeFilters.Add(newCube.GetComponent<MeshFilter>());
             }
         }
-        
-        if (orbController && orbController.isActiveAndEnabled)
-        {
-            orbController.FeedMeshFilters(cubeFilters);
-
-            for (int i = 0; i < cubeFilters.Count; i++)
-            {
-                cubeFilters[i].GetComponent<MeshRenderer>().enabled = false;
-            }
-        }
     }
 
     // Update is called once per frame

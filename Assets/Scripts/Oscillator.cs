@@ -20,7 +20,6 @@ public class Oscillator : MonoBehaviour
         this.startHeight = startHeight;
         this.rowAmount = rowAmount;
         this.initializer = initializer;
-        
     }
 
     public void UpdateAngle(float angle)
