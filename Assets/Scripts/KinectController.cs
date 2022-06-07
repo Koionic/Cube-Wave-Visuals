@@ -9,7 +9,7 @@ using UnityEngine.VFX.SDF;
 using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;
 
-public class OrbController : MonoBehaviour
+public class KinectController : MonoBehaviour
 {
     private VisualEffect orbVFX;
 

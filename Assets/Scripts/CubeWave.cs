@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class CubeWave : MonoBehaviour
 {
@@ -22,7 +23,7 @@ public class CubeWave : MonoBehaviour
     public List<Oscillator> cubes = new List<Oscillator>();
     public List<MeshFilter> cubeFilters = new List<MeshFilter>();
 
-    public OrbController orbController;
+    [FormerlySerializedAs("orbController")] public KinectController kinectController;
 
     // Start is called before the first frame update
     void Start()
