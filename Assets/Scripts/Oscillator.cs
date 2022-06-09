@@ -29,7 +29,7 @@ public class Oscillator : MonoBehaviour
         var d = new Vector3(diff.x * initializer.centerScale.x,diff.y * initializer.centerScale.y,diff.z * initializer.centerScale.z).magnitude % rowAmount / 2f;
         var offset = MathHelper.Map(d, 0, rowAmount / 2f, -Mathf.PI, Mathf.PI);
         var a = angle + offset;
-        var h = MathHelper.Map(Mathf.Sin(a), -1, 1, 1, 20);
+        var h = MathHelper.Map(Mathf.Sin(a), -1, 1, 1, rowAmount / 2f);
         
         transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y, h);
     }

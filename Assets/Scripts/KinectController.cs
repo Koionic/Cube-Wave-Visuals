@@ -6,6 +6,7 @@ using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
 using UnityEngine.VFX;
 using UnityEngine.VFX.SDF;
+using Matrix4x4 = UnityEngine.Matrix4x4;
 using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;
 
@@ -13,10 +14,11 @@ public class KinectController : MonoBehaviour
 {
     private VisualEffect orbVFX;
 
+    public CubeWave cubeWaveManager;
     
-    //private KinectManager _kinectManager;
+    private KinectManager _kinectManager;
 
-    //public KinectHandController handController;
+    public KinectHandController handController;
 
     private uint User1Id;
     private uint User2Id;
@@ -75,19 +77,19 @@ public class KinectController : MonoBehaviour
     public Vector3 autoPilotPivotChange;
     
     #endregion
-    
+
 
     // Start is called before the first frame update
     void Start()
     {
         orbVFX = GetComponent<VisualEffect>();
-        //_kinectManager = FindObjectOfType<KinectManager>();
+        _kinectManager = FindObjectOfType<KinectManager>();
 
-        // if (_kinectManager)
-        // {
-        //     _kinectManager.OnUserAdded.AddListener(OnKinectUserAdd);
-        //     _kinectManager.OnUserRemoved.AddListener(OnKinectUserRemove);
-        // }
+        if (_kinectManager)
+        {
+            _kinectManager.OnUserAdded.AddListener(OnKinectUserAdd);
+            _kinectManager.OnUserRemoved.AddListener(OnKinectUserRemove);
+        }
         
 
         //sphereDiameterID = Shader.PropertyToID("SphereSize");
@@ -134,27 +136,48 @@ public class KinectController : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        // if (User1Active)
-        // { 
-        //     // if (handController)
-        //     // {
-        //     //     handController.GrabValues(ref rotateVector, ref handMidpoint, ref sphereDiameter);
-        //     // }
-        //     
-        //     SetRotation(Quaternion.LookRotation(rotateVector, transform.up));
-        // }
-        // else if (autoPilotOn)
-        // {
-        //     autoRotateAngle = (autoRotateAngle + (autoRotateChange * Time.deltaTime)) % 360f;
-        //     SetRotation(Quaternion.AngleAxis(autoRotateAngle, rotateVector));
-        //
-        //     rotateVector.x = Mathf.Sin(Time.time * autoPilotPivotChange.x);
-        //     rotateVector.y = Mathf.Sin(Time.time * autoPilotPivotChange.y);
-        //     rotateVector.z = Mathf.Sin(Time.time * autoPilotPivotChange.z);
-        // }
-        //
-        // transform.rotation = objRotation;
+        if (User1Active)
+        { 
+            if (handController)
+            {
+                handController.GrabValues(ref rotateVector, ref handMidpoint, ref sphereDiameter);
+            }
+            
+            if (cubeWaveManager)
+            {
+                // cubeWaveManager.centerScale.x = Mathf.Abs(handVector.x);
+                // cubeWaveManager.centerScale.y = Mathf.Abs(handVector.y);
+
+            
+                //Vector3 vCursorPos = KinectManager.Instance.GetGestureScreenPos(User1Id, KinectGestures.Gestures.RightHandCursorBothSides);
+                //Vector3 vCursorPos = KinectManager.Instance.GetJointPosition(User1Id, (int)KinectWrapper.NuiSkeletonPositionIndex.HandRight);
+                
+                
+                //Vector3 vCursorPos = KinectManager.Instance.GetUserPosition(User1Id);
+                Vector3 vCursorPos = KinectManager.Instance.GetJointPosition(User1Id, (int)KinectWrapper.NuiSkeletonPositionIndex.Head);
+                
+                
+                
+                cubeWaveManager.centerPosition = Vector3.Lerp(cubeWaveManager.centerPosition, (vCursorPos - new Vector3(0f,1f,0.5f)) * cubeWaveManager.rowSize, 0.1f);
+
+                
+
+                print("hand position " + vCursorPos);
+            }
+            
+            //SetRotation(Quaternion.LookRotation(rotateVector, transform.up));
+        }
+        else if (autoPilotOn)
+        {
+            // autoRotateAngle = (autoRotateAngle + (autoRotateChange * Time.deltaTime)) % 360f;
+            // SetRotation(Quaternion.AngleAxis(autoRotateAngle, rotateVector));
         
+            // rotateVector.x = Mathf.Sin(Time.time * autoPilotPivotChange.x);
+            // rotateVector.y = Mathf.Sin(Time.time * autoPilotPivotChange.y);
+            // rotateVector.z = Mathf.Sin(Time.time * autoPilotPivotChange.z);
+        }
+        
+        //transform.rotation = objRotation;
     }
 
     public void StartLerpingNextColour()
